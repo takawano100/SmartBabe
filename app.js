@@ -35,8 +35,15 @@ if (!config.FB_APP_SECRET) {
 if (!config.SERVER_URL) { //used for ink to static files
     throw new Error('missing SERVER_URL');
 }
-
-
+if (!config.SENGRID_API_KEY) { //sending email
+    throw new Error('missing SENGRID_API_KEY');
+}
+if (!config.EMAIL_FROM) { //sending email
+    throw new Error('missing EMAIL_FROM');
+}
+if (!config.EMAIL_TO) { //sending email
+    throw new Error('missing EMAIL_TO');
+}
 
 app.set('port', (process.env.PORT || 5000))
 
@@ -204,6 +211,48 @@ function handleEcho(messageId, appId, metadata) {
 
 function handleDialogFlowAction(sender, action, messages, contexts, parameters) {
     switch (action) {
+        case "detaild-application":
+            let filteredContexts = contexts.filter(function (el) {
+                return el.name.includes('job_application') ||
+                    el.name.includes('job-application-details_dialog_context')
+            });
+            if (filteredContexts.length > 0 && contexts[0].parameters) {
+                let phone_number =
+                    (fbService.isDefined(contexts[0].parameters.fields[phone-number])
+                    && contexts[0].parameters.fields['phone-number'] != '') ?
+                        contexts[0].parameters.fields['phone-number'].stringValue : '';
+                let user_name =
+                    (fbService.isDefined(contexts[0].parameters.fields['user-name'])
+                    && contexts[0].parameters.fields['user-name'] != '') ?
+                        contexts[0].parameters.fields['user-name'].stringValue : '';
+                let previous_job =
+                    (fbService.isDefined(contexts[0].parameters.fields['previous-job'])
+                    && contexts[0].parameters.fields['previous-job'] != '') ?
+                        contexts[0].parameters.fields['previous-job'].stringValue : '';
+                let years_of_experience =
+                    (fbService.isDefined(contexts[0].parameters.fields['years-of-experience'])
+                    && contexts[0].parameters.fields['years-of-experience'] != '') ?
+                        contexts[0].parameters.fields['years-of-experience'].stringValue : '';
+                let job_vacancy =
+                    (fbService.isDefined(contexts[0].parameters.fields['job-vacancy'])
+                    && contexts[0].parameters.fields['job-vacancy'] != '') ?
+                        contexts[0].parameters.fields['job-vacancy'].stringValue : '';
+            }
+            if (phone_number != '' && user_name != '' && previous_job != '' && years_of_experience != ''
+                 && job_vacancy != '') {
+                
+                let emailContent = 'A new job enquiery from' + user_name + 'for the job: ' + job_vacancy +
+                    '<br> Previous job position: ' + previous_job + '.' *
+                    '<br> Years of experience: ' + years_of_experience + '.' +
+                    '<br> Phone number: ' + phone_number * '.';
+                sendEmail('New job applicayion', emailContent) ;
+
+                handleMessage(messages, sender);
+
+            } else {
+                handleMessage(messages, sender);
+            }
+            break;
         default:
             //unhandled action, just send back the text
             handleMessages(messages, sender);
@@ -846,6 +895,28 @@ function verifyRequestSignature(req, res, buf) {
             throw new Error("Couldn't validate the request signature.");
         }
     }
+}
+
+function sendEmail(subject, content) {
+	console.log('sending email!');
+    const sgMail = require('@sendgrid/mail');
+    sgMail.setApiKey(config.SENGRID_API_KEY);
+    const msg = {
+        to: config.EMAIL_TO,
+        from: config.EMAIL_FROM,
+        subject: subject,
+        text: content,
+        html: content,
+    };
+    sgMail.send(msg)
+		.then(() => {
+        console.log('Email Sent!');
+    })
+	.catch(error => {
+		console.log('Email NOT Sent!');
+		console.error(error.toString());
+	});
+
 }
 
 function isDefined(obj) {
