@@ -2,3 +2,6 @@ node_modules/
 token
 .DS_Store
 .idea
+sendgrid.env
+sendgrid.env
+sendgrid.env
