@@ -237,7 +237,7 @@ function handleDialogFlowAction(sender, action, messages, contexts, parameters) 
                     }
                 ];
 
-                fbService.sendButtonMessage(sender, "What would you like to do next?", buttons);
+                sendButtonMessage(sender, "What would you like to do next?", buttons);
 
             }, 3000)
 
@@ -430,7 +430,7 @@ async function sendToDialogFlow(sender, textString, params) {
             },
             queryParams: {
                 payload: {
-                    data: params
+                    data: paramsS
                 }
             }
         };
