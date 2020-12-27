@@ -430,7 +430,7 @@ async function sendToDialogFlow(sender, textString, params) {
             },
             queryParams: {
                 payload: {
-                    data: paramsS
+                    data: params
                 }
             }
         };
