@@ -213,9 +213,9 @@ function handleDialogFlowAction(sender, action, messages, contexts, parameters) 
     switch (action) {
         case "faq-delivery":
 
-            fbService.handleMessage(messages, sender);
+            handleMessage(messages, sender);
 
-            fbService.sendTypingOn(sender);
+            sendTypingOn(sender);
 
             //ask what user wants to do next
             setTimeout(function() {
