@@ -9,7 +9,7 @@ const request = require('request');
 const app = express();
 const uuid = require('uuid');
 
-const weatherService = require('./services/weather-service');
+const weatherService = require('weather-service');
 
 
 // Messenger API parameters
