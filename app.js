@@ -211,6 +211,30 @@ function handleEcho(messageId, appId, metadata) {
 
 function handleDialogFlowAction(sender, action, messages, contexts, parameters) {
     switch (action) {
+        case "get-current-weather":
+            if ( parameters.fields.hasOwnProperty('geo-city') && parameters.fields['geo-city'].stringValue!='') {
+                request ({
+                    url: 'http://api.openwhthermap.org/data/2.5/weather', //URL to hit
+                    qs: {
+                        appid: config.WEATHER_API_KEY,
+                        q: parameters.fields['geo-city'].stringValue
+                    }, //Query string data
+                }, function(error, response, body) {
+                    if( response.statusCode === 200) {
+
+                        let weather = JSON.parse(body);
+                        if (weather.hasOwnProperty('weather')) {
+                            let reply = ${message[0].text.text}| ${weather["weather"][0]["description"]};
+                            sendTextMessage(sender, reply);
+                        }
+                    } else {
+                        sendTextMessage(sender, 'Weather forecast is not available');
+                    }
+                };
+            } else {
+                handleMessage(messages, sender);
+            }
+            break;
         case "faq-delivery":
 
             handleMessage(messages, sender);
@@ -795,6 +819,13 @@ function receivedPostback(event) {
     var payload = event.postback.payload;
 
     switch (payload) {
+        case 'GET_STARTED':
+            greetUserText(senderID);
+            break;
+        case 'JOB_APPLY':
+            //get feedback with new
+            sendToDialogFlow(senderID, 'job opening');
+            break;
         case 'CHAT':
             //user wants to chat
             fbService.sendTextMessage(senderID, "I love chatting too. Do you have other questions for me?");
