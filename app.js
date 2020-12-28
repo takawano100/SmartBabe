@@ -212,29 +212,23 @@ function handleEcho(messageId, appId, metadata) {
 function handleDialogFlowAction(sender, action, messages, contexts, parameters) {
     switch (action) {
         case "get-current-weather":
-            if ( parameters.fields.hasOwnProperty('geo-city') && parameters.fields['geo-city'].stringValue!='') {
-                request ({
-                    url: 'http://api.openwhthermap.org/data/2.5/weather', //URL to hit
-                    qs: {
-                        appid: config.WEATHER_API_KEY,
-                        q: parameters.fields['geo-city'].stringValue
-                    }, //Query string data
-                }, function(error, response, body) {
-                    if( response.statusCode === 200) {
+            if ( parameters.fields['geo-city'].stringValue!='') {
 
-                        let weather = JSON.parse(body);
-                        if (weather.hasOwnProperty('weather')) {
-                            let reply = ${message[0].text.text}| ${weather["weather"][0]["description"]};
-                            sendTextMessage(sender, reply);
-                        }
+                weatherService(function(weatherResponse){
+                    if (!weatherResponse) {
+                        fbService.sendTextMessage(sender,
+                            `No weather forecast available for ${parameters.fields['geo-city'].stringValue}`);
                     } else {
-                        sendTextMessage(sender, 'Weather forecast is not available');
+                        let reply = `${messages[0].text.text} ${weatherResponse}`;
+                        fbService.sendTextMessage(sender, reply);
                     }
-                };
+
+
+                }, parameters.fields['geo-city'].stringValue);
             } else {
-                handleMessage(messages, sender);
+                fbService.sendTextMessage(sender, 'No weather forecast available');
             }
-            break;
+        	break;
         case "faq-delivery":
 
             handleMessage(messages, sender);
