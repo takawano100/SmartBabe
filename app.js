@@ -216,17 +216,17 @@ function handleDialogFlowAction(sender, action, messages, contexts, parameters) 
 
                 weatherService(function(weatherResponse){
                     if (!weatherResponse) {
-                        fbService.sendTextMessage(sender,
+                        sendTextMessage(sender,
                             `No weather forecast available for ${parameters.fields['geo-city'].stringValue}`);
                     } else {
                         let reply = `${messages[0].text.text} ${weatherResponse}`;
-                        fbService.sendTextMessage(sender, reply);
+                        sendTextMessage(sender, reply);
                     }
 
 
                 }, parameters.fields['geo-city'].stringValue);
             } else {
-                fbService.sendTextMessage(sender, 'No weather forecast available');
+                sendTextMessage(sender, 'No weather forecast available');
             }
         	break;
         case "faq-delivery":
