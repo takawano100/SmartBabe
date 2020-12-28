@@ -9,6 +9,8 @@ const request = require('request');
 const app = express();
 const uuid = require('uuid');
 
+const weatherService = require('./services/weather-service');
+
 
 // Messenger API parameters
 if (!config.FB_PAGE_TOKEN) {
